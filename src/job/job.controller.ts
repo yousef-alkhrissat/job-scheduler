@@ -1,15 +1,16 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { JobService } from './job.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { JobDetailsDto } from './dto/job-details.dto';
+import { PaginatorDto } from './dto/paginator.dto';
 
 @Controller('jobs')
 export class JobController {
   constructor(private readonly jobService: JobService) {}
 
   @Get()
-  findAll(): Promise<JobDetailsDto[]> {
-    return this.jobService.findAll();
+  findAll(@Query() paginator: PaginatorDto): Promise<JobDetailsDto[]> {
+    return this.jobService.findAll(paginator);
   }
 
   @Get(':id')

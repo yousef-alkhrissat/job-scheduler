@@ -1,14 +1,17 @@
-import { IsString, IsDate, IsOptional, IsJSON } from 'class-validator';
+import { IsString, IsDate, IsOptional, IsJSON, IsEnum } from 'class-validator';
+import IntervalEnum from '../enums/interval.enum';
 
 export class CreateJobDto {
-  @IsString()
-  name: string;
+  @IsEnum(IntervalEnum)
+  name: IntervalEnum;
 
   @IsDate()
-  lastRun: Date;
+  @IsOptional()
+  lastRun?: Date;
 
   @IsDate()
-  nextRun: Date;
+  @IsOptional()
+  nextRun?: Date;
 
   @IsString()
   interval: string;

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Job" ALTER COLUMN "lastRun" DROP NOT NULL,
+ALTER COLUMN "nextRun" DROP NOT NULL;

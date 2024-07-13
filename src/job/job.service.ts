@@ -4,6 +4,8 @@ import { CreateJobDto } from './dto/create-job.dto';
 import { JobDetailsDto } from './dto/job-details.dto';
 import { Job } from '@prisma/client';
 import * as cron from 'node-cron';
+import IntervalEnum from './enums/interval.enum';
+import { PaginatorDto } from './dto/paginator.dto';
 
 @Injectable()
 export class JobService implements OnModuleInit {
@@ -22,8 +24,17 @@ export class JobService implements OnModuleInit {
     });
   }
 
-  async findAll(): Promise<JobDetailsDto[]> {
-    return this.prisma.job.findMany();
+  async findAll(paginator?: PaginatorDto): Promise<JobDetailsDto[]> {
+    let paginatorConstruction;
+    if (paginator) {
+      paginatorConstruction = {
+        skip: +(paginator.limit * (paginator.page - 1)),
+        take: +paginator.limit,
+      };
+    }
+    return this.prisma.job.findMany({
+      ...paginatorConstruction,
+    });
   }
 
   async findOne(id: number): Promise<JobDetailsDto> {
@@ -31,22 +42,39 @@ export class JobService implements OnModuleInit {
   }
 
   async create(createJobDto: CreateJobDto): Promise<JobDetailsDto> {
+    if (typeof createJobDto.options === 'string') {
+      createJobDto.options = JSON.parse(createJobDto.options);
+    }
     const job = await this.prisma.job.create({
       data: {
         ...createJobDto,
-        options: createJobDto.options
-          ? JSON.parse(createJobDto.options)
-          : undefined,
       },
     });
     this.scheduleJob(job);
     return job;
   }
+  private intervalToCron(interval: string): string {
+    switch (interval.toLowerCase()) {
+      case IntervalEnum.DAILY:
+        return '0 0 * * *';
+      case IntervalEnum.HOURLY:
+        return '0 * * * *';
+      case IntervalEnum.WEEKLY:
+        return '0 0 * * 0';
+      case IntervalEnum.MONTHLY:
+        return '0 0 1 * *';
+      case IntervalEnum.YEARLY:
+        return '0 0 1 1 *';
+      default:
+        throw new Error(`Unsupported interval word: ${interval}`);
+    }
+  }
 
   private scheduleJob(job: Job) {
-    const task = cron.schedule(job.interval, async () => {
+    let task;
+    // eslint-disable-next-line prefer-const
+    task = cron.schedule(this.intervalToCron(job.interval), async () => {
       console.log(`Executing job: ${job.name}`);
-
       await this.prisma.job.update({
         where: { id: job.id },
         data: { lastRun: new Date() },

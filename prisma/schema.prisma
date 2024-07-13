@@ -10,8 +10,8 @@ generator client {
 model Job {
   id        Int      @id @default(autoincrement())
   name      String
-  lastRun   DateTime
-  nextRun   DateTime
+  lastRun   DateTime?
+  nextRun   DateTime?
   interval  String
   options   Json?
 }
