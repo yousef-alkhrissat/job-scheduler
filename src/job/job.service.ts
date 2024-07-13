@@ -51,8 +51,6 @@ export class JobService implements OnModuleInit {
         where: { id: job.id },
         data: { lastRun: new Date() },
       });
-
-      // Re-schedule job with updated nextRun timestamp if needed
     });
 
     this.schedules.set(job.id, task);
