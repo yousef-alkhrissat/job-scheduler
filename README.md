@@ -8,7 +8,7 @@ This is a simple scheduler microservice built with Nest.js and Prisma.
 2. Install dependencies: `npm install`
 3. Configure the database connection in the `.env` file
 4. Run Prisma migrations: `npx prisma migrate deploy`
-5. Run the application: `npm run start:dev`
+5. Run the application: `npm run start`
 
 ## API Endpoints
 
